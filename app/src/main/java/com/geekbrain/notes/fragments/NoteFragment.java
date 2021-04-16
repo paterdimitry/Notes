@@ -1,22 +1,23 @@
 package com.geekbrain.notes.fragments;
 
-import android.content.Intent;
+import android.app.Activity;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Parcelable;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.geekbrain.notes.activities.DetailActivity;
 import com.geekbrain.notes.Notes;
 import com.geekbrain.notes.R;
 
@@ -48,44 +49,106 @@ public class NoteFragment extends Fragment {
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         ArrayList<Notes> noteList = getNoteList();
         for (Notes notes : noteList) {
-            initTextView(linearLayout, notes.getTitle(), 22).setOnClickListener(v -> showDetails(notes));
-            initTextView(linearLayout, notes.getDescription(), 12);
+            initTextView(linearLayout, notes,
+                    notes.getTitle(),
+                    getResources().getDimension(R.dimen.large));
+            initTextView(linearLayout,
+                    notes, notes.getDescription(),
+                    getResources().getDimension(R.dimen.small));
         }
     }
 
-    //метод инициализации TextView и вывода полей заметки
-    private TextView initTextView(LinearLayout linearLayout, String text, int textSize) {
-        TextView tvTitle = new TextView(getContext());
-        tvTitle.setText(text);
-        tvTitle.setTextSize(textSize);
-        linearLayout.addView(tvTitle);
-        return tvTitle;
+    private TextView initTextView(LinearLayout linearLayout, Notes notes, String text, float textSize) {
+        TextView tv = new TextView(getContext());
+        tv.setText(text);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
+        linearLayout.addView(tv);
+        tv.setOnLongClickListener(v -> showPopupMenu(notes, v));
+        tv.setOnClickListener(v -> showDetails(notes));
+        return tv;
     }
 
-    //отображенеи детализации заметки. Выбор метода отображения в зависимости от ориентации экрана
-    private void showDetails(Notes notes) {
+    //Всплывающее меню по долгому нажатию на элемент
+    private boolean showPopupMenu(Notes note, View v) {
+        Activity activity = requireActivity();
+        PopupMenu popupMenu = new PopupMenu(activity, v);
+        activity.getMenuInflater().inflate(R.menu.popup, popupMenu.getMenu());
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int id = item.getItemId();
+            switch (id) {
+                case R.id.detail_popup:
+                    showDetails(note);
+                    break;
+                case R.id.change_popup:
+                    showChangeNote(note);
+                    break;
+                case R.id.delete_popup:
+                    Toast.makeText(getContext(), "Удалить", Toast.LENGTH_LONG).show();
+                    break;
+            }
+
+            return false;
+        });
+        popupMenu.show();
+        return true;
+    }
+
+    private void showChangeNote(Notes note) {
         boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         if (isLandscape) {
-            showDetailLand(notes);
+            showChangeNoteLand(note);
         } else {
-            showDetailPort(notes);
+            showChangeNotePort(note);
+        }
+    }
+
+    private void showChangeNotePort(Notes note) {
+        ChangeNoteFragment changeNote = ChangeNoteFragment.newInstance(note);
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, changeNote);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    private void showChangeNoteLand(Notes note) {
+        ChangeNoteFragment changeNote = ChangeNoteFragment.newInstance(note);
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, changeNote);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.commit();
+    }
+    //метод инициализации TextView и вывода полей заметки
+
+    //отображенеи детализации заметки. Выбор метода отображения в зависимости от ориентации экрана
+    private void showDetails(Notes note) {
+        boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+        if (isLandscape) {
+            showDetailLand(note);
+        } else {
+            showDetailPort(note);
         }
     }
 
     //создание активити дял отображения фрагмента с детализацией заметки при вертикальной ориентации экрана
-    private void showDetailPort(Parcelable notes) {
-        Intent intent = new Intent();
-        intent.setClass(getActivity(), DetailActivity.class);
-        intent.putExtra(DetailFragment.ARG_PARAM1, notes);
-        startActivity(intent);
+    private void showDetailPort(Notes note) {
+        DetailFragment detail = DetailFragment.newInstance(note);
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, detail);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 
     //отображение фрагмента с детализацией заметки при экране в горизонтальной ориентации
-    private void showDetailLand(Notes notes) {
-        DetailFragment detail = DetailFragment.newInstance(notes);
+    private void showDetailLand(Notes note) {
+        DetailFragment detail = DetailFragment.newInstance(note);
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.detail, detail);
+        fragmentTransaction.replace(R.id.side_container, detail);
         fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         fragmentTransaction.commit();
     }
