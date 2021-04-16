@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,7 @@ public class DetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            note = (Notes) getArguments().getSerializable(ARG_PARAM1);
+            note = getArguments().getParcelable(ARG_PARAM1);
         }
     }
 
@@ -54,16 +55,28 @@ public class DetailFragment extends Fragment {
     private void showNote(View view) {
         LinearLayout linearLayout = (LinearLayout)view;
         linearLayout.setOrientation(LinearLayout.VERTICAL);
-        initTextView(linearLayout, note.getTitle(), 24, Gravity.CENTER);
-        initTextView(linearLayout, note.getDescription(), 14, Gravity.START);
-        initTextView(linearLayout, note.getDate(), 14, Gravity.START);
-        initTextView(linearLayout, note.getText(), 16, Gravity.FILL_HORIZONTAL);
+        initTextView(linearLayout,
+                note.getTitle(),
+                getResources().getDimension(R.dimen.large),
+                Gravity.CENTER);
+        initTextView(linearLayout,
+                note.getDescription(),
+                getResources().getDimension(R.dimen.small),
+                Gravity.START);
+        initTextView(linearLayout,
+                note.getDate(),
+                getResources().getDimension(R.dimen.small),
+                Gravity.START);
+        initTextView(linearLayout,
+                note.getText(),
+                getResources().getDimension(R.dimen.middle),
+                Gravity.FILL_HORIZONTAL);
     }
 
-    private void initTextView(LinearLayout linearLayout, String text, int textSize, int gravity) {
+    private void initTextView(LinearLayout linearLayout, String text, float textSize, int gravity) {
         TextView textView = new TextView(getContext());
         textView.setText(text);
-        textView.setTextSize(textSize);
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         textView.setGravity(gravity);
         linearLayout.addView(textView);
     }

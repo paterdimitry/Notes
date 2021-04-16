@@ -2,19 +2,16 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal">
-    <fragment
-        android:id="@+id/notes"
+    <FrameLayout
+        android:id="@+id/fragment_container"
         android:layout_margin="5dp"
-        android:name="com.geekbrain.notes.fragments.NoteFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"
-        tools:layout="@layout/fragment_note" />
+        android:layout_weight="1"/>
     <FrameLayout
-        android:id="@+id/detail"
-        android:layout_margin="5dp"
+        android:id="@+id/side_container"
+        android:layout_margin="@dimen/margins"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"/>
