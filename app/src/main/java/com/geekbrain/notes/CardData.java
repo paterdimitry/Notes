@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Notes implements Parcelable, Serializable {
+public class CardData implements Parcelable, Serializable {
 
     private String title; //Заголовок заметки
     private String description; //Краткое описание
@@ -15,14 +15,14 @@ public class Notes implements Parcelable, Serializable {
     private String date;//Дата создания
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd:MM:yyyy HH:mm");
 
-    public Notes(String title, String description, String text) {
+    public CardData(String title, String description, String text) {
         this.title = title;
         this.description = description;
         this.text = text;
         this.date = dateFormat.format(new Date());
     }
 
-    protected Notes(Parcel in) {
+    protected CardData(Parcel in) {
         title = in.readString();
         description = in.readString();
         text = in.readString();
@@ -42,15 +42,15 @@ public class Notes implements Parcelable, Serializable {
         return 0;
     }
 
-    public static final Creator<Notes> CREATOR = new Creator<Notes>() {
+    public static final Creator<CardData> CREATOR = new Creator<CardData>() {
         @Override
-        public Notes createFromParcel(Parcel in) {
-            return new Notes(in);
+        public CardData createFromParcel(Parcel in) {
+            return new CardData(in);
         }
 
         @Override
-        public Notes[] newArray(int size) {
-            return new Notes[size];
+        public CardData[] newArray(int size) {
+            return new CardData[size];
         }
     };
 

@@ -1,4 +1,6 @@
-package com.geekbrain.notes.activities;
+package com.geekbrain.notes.ui.activities;
+
+import android.os.Bundle;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -6,13 +8,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import android.os.Bundle;
-
-import com.geekbrain.notes.fragments.AboutFragment;
-import com.geekbrain.notes.Notes;
+import com.geekbrain.notes.CardData;
 import com.geekbrain.notes.R;
-import com.geekbrain.notes.fragments.NoteFragment;
-import com.geekbrain.notes.fragments.SettingsFragment;
+import com.geekbrain.notes.ui.fragments.AboutFragment;
+import com.geekbrain.notes.ui.fragments.NoteFragment;
+import com.geekbrain.notes.ui.fragments.SettingsFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import java.io.File;
@@ -105,11 +105,11 @@ public class MainActivity extends AppCompatActivity {
 
     //временный метод для создания пробных записей во внутренней памяти
     private void tempInitStorage() {
-        Notes newNote = new Notes("Напоминание", "Созвон", "Необходимо обязательно созвониться с начальником!");
-        Notes newNote2 = new Notes("Дело", "Сходить в магазин", "Накупить всякого. Молоко, сосиски, хлеб, огурцы, помидоры, кофе, чай, шашлык, творог, печенье, и что-нибудь на выбор");
+        CardData newNote = new CardData("Напоминание", "Созвон", "Необходимо обязательно созвониться с начальником!");
+        CardData newNote2 = new CardData("Дело", "Сходить в магазин", "Накупить всякого. Молоко, сосиски, хлеб, огурцы, помидоры, кофе, чай, шашлык, творог, печенье, и что-нибудь на выбор");
 
         //Хранить заметки будем в ArrayList
-        ArrayList<Notes> noteList = new ArrayList();
+        ArrayList<CardData> noteList = new ArrayList();
         noteList.add(newNote);
         noteList.add(newNote2);
 

@@ -1,11 +1,6 @@
-package com.geekbrain.notes.fragments;
+package com.geekbrain.notes.ui.fragments;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -14,16 +9,20 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.geekbrain.notes.Notes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+import com.geekbrain.notes.CardData;
 import com.geekbrain.notes.R;
 
 public class DetailFragment extends Fragment {
 
     public static final String ARG_PARAM1 = "note";
 
-    private Notes note;
+    private CardData note;
 
-    public static DetailFragment newInstance(Notes note) {
+    public static DetailFragment newInstance(CardData note) {
         DetailFragment fragment = new DetailFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_PARAM1, note);

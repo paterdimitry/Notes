@@ -1,22 +1,22 @@
-package com.geekbrain.notes.fragments;
+package com.geekbrain.notes.ui.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.geekbrain.notes.Notes;
+import androidx.fragment.app.Fragment;
+
+import com.geekbrain.notes.CardData;
 import com.geekbrain.notes.R;
+
 
 public class ChangeNoteFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "note";
 
-    Notes note;
-    public static ChangeNoteFragment newInstance(Notes note) {
+    CardData note;
+    public static ChangeNoteFragment newInstance(CardData note) {
         ChangeNoteFragment fragment = new ChangeNoteFragment();
         Bundle args = new Bundle();
         args.putParcelable(ARG_PARAM1, note);
