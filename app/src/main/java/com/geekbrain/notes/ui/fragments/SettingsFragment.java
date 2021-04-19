@@ -1,15 +1,13 @@
-package com.geekbrain.notes.fragments;
+package com.geekbrain.notes.ui.fragments;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.geekbrain.notes.R;
+import androidx.fragment.app.Fragment;
 
+import com.geekbrain.notes.R;
 
 public class SettingsFragment extends Fragment {
 
