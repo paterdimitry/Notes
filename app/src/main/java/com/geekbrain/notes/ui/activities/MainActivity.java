@@ -10,6 +10,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.geekbrain.notes.CardData;
 import com.geekbrain.notes.R;
+import com.geekbrain.notes.navigation.Navigation;
+import com.geekbrain.notes.navigation.Publisher;
 import com.geekbrain.notes.ui.fragments.AboutFragment;
 import com.geekbrain.notes.ui.fragments.NoteFragment;
 import com.geekbrain.notes.ui.fragments.SettingsFragment;
@@ -20,16 +22,22 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
+
+    private Navigation navigation;
+    private Publisher publisher = new Publisher();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         createStorage();
         tempInitStorage();
         super.onCreate(savedInstanceState);
+        navigation = new Navigation(getSupportFragmentManager());
         setContentView(R.layout.activity_main);
-        openNoteFragment();
+        getNavigation().addFragment(NoteFragment.newInstance(), false, publisher);
         initView();
     }
 
@@ -61,52 +69,33 @@ public class MainActivity extends AppCompatActivity {
     private boolean navigateFragment(int id) {
         switch (id) {
             case R.id.main_page: {
-                openNoteFragment();
+                navigation.addFragment(NoteFragment.newInstance(), false, publisher);
                 return true;
             }
             case R.id.about_page: {
-                openAboutFragment();
+                navigation.addFragment(AboutFragment.newInstance(), true, publisher);
                 return true;
             }
             case R.id.settings_page: {
-                openSettingsFragment();
+                navigation.addFragment(SettingsFragment.newInstance(), true, publisher);
                 return true;
             }
         }
         return false;
     }
 
-    private void openNoteFragment() {
-        NoteFragment noteFragment = new NoteFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, noteFragment).commit();
-    }
-
-    private void openAboutFragment() {
-        AboutFragment aboutFragment = new AboutFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, aboutFragment).commit();
-    }
-
-    private void openSettingsFragment() {
-        SettingsFragment settingsFragment = new SettingsFragment();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, settingsFragment).commit();
-    }
-
     private Toolbar initToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         return toolbar;
     }
 
     //временный метод для создания пробных записей во внутренней памяти
     private void tempInitStorage() {
-        CardData newNote = new CardData("Напоминание", "Созвон", "Необходимо обязательно созвониться с начальником!");
-        CardData newNote2 = new CardData("Дело", "Сходить в магазин", "Накупить всякого. Молоко, сосиски, хлеб, огурцы, помидоры, кофе, чай, шашлык, творог, печенье, и что-нибудь на выбор");
+        CardData newNote = new CardData("Напоминание", "Созвон", "Необходимо обязательно созвониться с начальником!", new Date());
+        CardData newNote2 = new CardData("Дело", "Сходить в магазин", "Накупить всякого. Молоко, сосиски, хлеб, огурцы, помидоры, кофе, чай, шашлык, творог, печенье, и что-нибудь на выбор", new Date());
 
         //Хранить заметки будем в ArrayList
         ArrayList<CardData> noteList = new ArrayList();
@@ -132,5 +121,13 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    public Navigation getNavigation() {
+        return navigation;
+    }
+
+    public Publisher getPublisher() {
+        return publisher;
     }
 }

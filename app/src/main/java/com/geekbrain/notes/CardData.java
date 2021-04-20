@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CardData implements Parcelable, Serializable {
@@ -12,21 +11,21 @@ public class CardData implements Parcelable, Serializable {
     private String title; //Заголовок заметки
     private String description; //Краткое описание
     private String text; //Текст заметки
-    private String date;//Дата создания
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd:MM:yyyy HH:mm");
+    private Date date;//Дата заметки
 
-    public CardData(String title, String description, String text) {
+
+    public CardData(String title, String description, String text, Date date) {
         this.title = title;
         this.description = description;
         this.text = text;
-        this.date = dateFormat.format(new Date());
+        this.date = date;
     }
 
     protected CardData(Parcel in) {
         title = in.readString();
         description = in.readString();
         text = in.readString();
-        date = in.readString();
+        date = (Date) in.readSerializable();
     }
 
     @Override
@@ -34,7 +33,7 @@ public class CardData implements Parcelable, Serializable {
         dest.writeString(title);
         dest.writeString(description);
         dest.writeString(text);
-        dest.writeString(date);
+        dest.writeSerializable(date);
     }
 
     @Override
@@ -78,8 +77,11 @@ public class CardData implements Parcelable, Serializable {
         this.text = text;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
+    public void setDate(Date date) {
+        this.date = date;
+    }
 }

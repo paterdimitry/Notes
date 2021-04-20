@@ -1,19 +1,19 @@
 package com.geekbrain.notes.ui.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,9 +21,28 @@ import com.geekbrain.notes.CardData;
 import com.geekbrain.notes.CardSourceImpl;
 import com.geekbrain.notes.R;
 import com.geekbrain.notes.interfaces.CardSource;
+import com.geekbrain.notes.interfaces.Observer;
+import com.geekbrain.notes.navigation.Navigation;
+import com.geekbrain.notes.navigation.Publisher;
 import com.geekbrain.notes.ui.NoteListAdapter;
+import com.geekbrain.notes.ui.activities.MainActivity;
 
-public class NoteFragment extends Fragment {
+public class NoteFragment extends Fragment implements Observer {
+
+    private Navigation navigation;
+    private Publisher publisher;
+    private CardSource data;
+    private NoteListAdapter noteListAdapter;
+
+    public static NoteFragment newInstance() {
+        return new NoteFragment();
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        data = new CardSourceImpl(getActivity()).init();
+    }
 
     @Nullable
     @Override
@@ -40,82 +59,93 @@ public class NoteFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
     }
 
-    private void noteListInit(View view) {
-
-        CardSource noteList = new CardSourceImpl(getActivity()).init();
-        RecyclerView recyclerView = view.findViewById(R.id.list_note);
-        initRecyclerView(recyclerView, noteList);
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        MainActivity activity = (MainActivity) context;
+        navigation = activity.getNavigation();
+        publisher = activity.getPublisher();
     }
 
-    private void initRecyclerView(RecyclerView recyclerView, CardSource noteList) {
+    @Override
+    public void onDetach() {
+        navigation = null;
+        publisher = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, @Nullable ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = requireActivity().getMenuInflater();
+        inflater.inflate(R.menu.context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        int position = noteListAdapter.getMenuPosition();
+        switch (item.getItemId()) {
+            case R.id.add_popup: {
+                showChangeNote(null, data.size());
+                return true;
+            }
+            case R.id.detail_popup: {
+                showDetails(data.getSource(position));
+                return true;
+            }
+            case R.id.change_popup: {
+                showChangeNote(data.getSource(position), position);
+                return true;
+            }
+            case R.id.delete_popup: {
+                data.deleteCardData(position);
+                noteListAdapter.notifyItemRemoved(position);
+                Toast.makeText(getContext(), getResources().getText(R.string.deleted).toString(), Toast.LENGTH_LONG).show();
+                return true;
+            }
+        }
+        return super.onContextItemSelected(item);
+
+    }
+
+    private void noteListInit(View view) {
+
+        data = new CardSourceImpl(getActivity()).init();
+        RecyclerView recyclerView = view.findViewById(R.id.list_note);
+        initRecyclerView(recyclerView, data);
+    }
+
+    private void initRecyclerView(RecyclerView recyclerView, CardSource data) {
         recyclerView.setHasFixedSize(false);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        NoteListAdapter noteListAdapter = new NoteListAdapter(noteList);
+        noteListAdapter = new NoteListAdapter(data, this);
         recyclerView.setAdapter(noteListAdapter);
 
-        //Подключение слушателей к адаптеру
-        noteListAdapter.setItemClickListener((view, position) -> showDetails(noteList.getSource(position)));
-        noteListAdapter.setItemLongClickListener((view, position) -> showPopupMenu(noteList.getSource(position), view));
+        noteListAdapter.setItemClickListener((view, position) -> showDetails(data.getSource(position)));
     }
 
-    //Всплывающее меню по долгому нажатию на элемент
-    private boolean showPopupMenu(CardData note, View v) {
-        Activity activity = requireActivity();
-        PopupMenu popupMenu = new PopupMenu(activity, v);
-        activity.getMenuInflater().inflate(R.menu.popup, popupMenu.getMenu());
-        popupMenu.setOnMenuItemClickListener(item -> {
-            int id = item.getItemId();
-            switch (id) {
-                case R.id.detail_popup:
-                    showDetails(note);
-                    break;
-                case R.id.change_popup:
-                    showChangeNote(note);
-                    break;
-                case R.id.delete_popup:
-                    Toast.makeText(getContext(), "Удалить", Toast.LENGTH_LONG).show();
-                    break;
-            }
-            return false;
-        });
-        popupMenu.show();
-        return true;
-    }
-
-    private void showChangeNote(CardData note) {
+    private void showChangeNote(CardData note, int position) {
         boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         if (isLandscape) {
-            showChangeNoteLand(note);
+            showChangeNoteLand(note, position);
         } else {
-            showChangeNotePort(note);
+            showChangeNotePort(note, position);
         }
     }
 
-    private void showChangeNotePort(CardData note) {
-        ChangeNoteFragment changeNote = ChangeNoteFragment.newInstance(note);
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, changeNote);
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+    private void showChangeNotePort(CardData note, int position) {
+        navigation.addFragment(ChangeNoteFragment.newInstance(note, position), true, publisher);
     }
 
-    private void showChangeNoteLand(CardData note) {
-        ChangeNoteFragment changeNote = ChangeNoteFragment.newInstance(note);
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, changeNote);
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        fragmentTransaction.commit();
-    }
-    //метод инициализации TextView и вывода полей заметки
+    private void showChangeNoteLand(CardData note, int position) {
+        navigation.addSideFragment(ChangeNoteFragment.newInstance(note, position), false, publisher);
 
-    //отображенеи детализации заметки. Выбор метода отображения в зависимости от ориентации экрана
+    }
+
     private void showDetails(CardData note) {
         boolean isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         if (isLandscape) {
@@ -127,24 +157,21 @@ public class NoteFragment extends Fragment {
 
     //создание активити дял отображения фрагмента с детализацией заметки при вертикальной ориентации экрана
     private void showDetailPort(CardData note) {
-        DetailFragment detail = DetailFragment.newInstance(note);
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, detail);
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        navigation.addFragment(DetailFragment.newInstance(note), true, publisher);
     }
 
     //отображение фрагмента с детализацией заметки при экране в горизонтальной ориентации
     private void showDetailLand(CardData note) {
-        DetailFragment detail = DetailFragment.newInstance(note);
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.side_container, detail);
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        fragmentTransaction.commit();
+        navigation.addSideFragment(DetailFragment.newInstance(note), false, publisher);
     }
 
 
+    @Override
+    public void updateCardData(CardData cardData, boolean isChange, int position) {
+        if (isChange) {
+            data.changeCard(cardData, position);
+        } else {
+            data.add(cardData);
+        }
+    }
 }

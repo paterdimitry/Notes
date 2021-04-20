@@ -15,8 +15,9 @@ import androidx.fragment.app.Fragment;
 
 import com.geekbrain.notes.CardData;
 import com.geekbrain.notes.R;
+import com.geekbrain.notes.interfaces.Observer;
 
-public class DetailFragment extends Fragment {
+public class DetailFragment extends Fragment implements Observer {
 
     public static final String ARG_PARAM1 = "note";
 
@@ -63,7 +64,7 @@ public class DetailFragment extends Fragment {
                 getResources().getDimension(R.dimen.small),
                 Gravity.START);
         initTextView(linearLayout,
-                note.getDate(),
+                note.getDate().toString(),
                 getResources().getDimension(R.dimen.small),
                 Gravity.START);
         initTextView(linearLayout,
@@ -78,5 +79,10 @@ public class DetailFragment extends Fragment {
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
         textView.setGravity(gravity);
         linearLayout.addView(textView);
+    }
+
+    @Override
+    public void updateCardData(CardData cardData, boolean isChange, int position) {
+
     }
 }
