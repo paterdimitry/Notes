@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.geekbrain.notes.CardData;
@@ -17,9 +18,12 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
     private CardSource dataSource;
     private OnItemClickListener itemClickListener;
     private OnItemLongClickListener itemLongClickListener;
+    private Fragment fragment;
+    private int menuPosition;
 
-    public NoteListAdapter(CardSource dataSource) {
+    public NoteListAdapter(CardSource dataSource, Fragment fragment) {
         this.dataSource = dataSource;
+        this.fragment = fragment;
     }
 
     @NonNull
@@ -55,6 +59,10 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
         void onItemLongClick(View view, int position);
     }
 
+    public int getMenuPosition() {
+        return menuPosition;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView titleTV;
@@ -88,18 +96,24 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
 
             //Слушатель для долгого нажатия
             titleTV.setOnLongClickListener(v -> {
-                if (itemLongClickListener != null) {
-                    itemLongClickListener.onItemLongClick(v, getAdapterPosition());
-                    return true;
-                }
-                return false;
+                menuPosition = getLayoutPosition();
+                v.showContextMenu();
+                return true;
             });
+
+            if(fragment != null) {
+                itemView.setOnLongClickListener(v -> {
+                    menuPosition = getLayoutPosition();
+                    return false;
+                });
+                fragment.registerForContextMenu(itemView);
+            }
         }
 
         public void setData(CardData cardData) {
             titleTV.setText(cardData.getTitle());
             descriptionTV.setText(cardData.getDescription());
-            dateTV.setText(cardData.getDate());
+            dateTV.setText(cardData.getDate().toString());
         }
     }
 }

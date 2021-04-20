@@ -4,6 +4,9 @@
         android:id="@+id/detail_popup"
         android:title="@string/detail_popup" />
     <item
+        android:id="@+id/add_popup"
+        android:title="@string/add_popup" />
+    <item
         android:id="@+id/change_popup"
         android:title="@string/change_popup" />
     <item

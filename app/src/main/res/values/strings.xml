@@ -16,5 +16,11 @@
     <string name="detail_popup">Подробнее</string>
     <string name="change_popup">Изменить</string>
     <string name="delete_popup">Удалить</string>
+    <string name="add_popup">Добавить</string>
+    <string name="deleted">Удалено</string>
+    <string name="title_on_change">Заголовок Записи</string>
+    <string name="description_on_change">Описание</string>
+    <string name="text_on_change">Текст заметки</string>
+    <string name="confirm">Подтвердить</string>
 
 </resources>
