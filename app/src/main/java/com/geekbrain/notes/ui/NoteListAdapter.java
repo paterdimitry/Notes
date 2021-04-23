@@ -21,9 +21,13 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
     private Fragment fragment;
     private int menuPosition;
 
-    public NoteListAdapter(CardSource dataSource, Fragment fragment) {
-        this.dataSource = dataSource;
+    public NoteListAdapter(Fragment fragment) {
         this.fragment = fragment;
+    }
+
+    public void setDataSource(CardSource dataSource) {
+        this.dataSource = dataSource;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -90,7 +94,7 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
             //Слушатель для короткого нажатия
             titleTV.setOnClickListener(v -> {
                 if (itemClickListener != null) {
-                    itemClickListener.onItemClick(v, getAdapterPosition());
+                    itemClickListener.onItemClick(v, getLayoutPosition());
                 }
             });
 
@@ -101,7 +105,7 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
                 return true;
             });
 
-            if(fragment != null) {
+            if (fragment != null) {
                 itemView.setOnLongClickListener(v -> {
                     menuPosition = getLayoutPosition();
                     return false;

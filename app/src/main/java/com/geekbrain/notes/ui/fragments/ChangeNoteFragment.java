@@ -105,7 +105,11 @@ public class ChangeNoteFragment extends Fragment implements Observer {
         String description = this.description.getText().toString();
         String text = this.text.getText().toString();
         Date date = getDateFromDatePicker();
-        return new CardData(title, description, text, date);
+        CardData answer = new CardData(title, description, text, date);
+        if (isChange) {
+            answer.setId(cardData.getId());
+        }
+        return answer;
     }
 
     private Date getDateFromDatePicker() {
