@@ -8,6 +8,7 @@ import java.util.Date;
 
 public class CardData implements Parcelable, Serializable {
 
+    private String id;
     private String title; //Заголовок заметки
     private String description; //Краткое описание
     private String text; //Текст заметки
@@ -52,6 +53,14 @@ public class CardData implements Parcelable, Serializable {
             return new CardData[size];
         }
     };
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;

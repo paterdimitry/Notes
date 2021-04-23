@@ -8,7 +8,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.geekbrain.notes.CardData;
 import com.geekbrain.notes.R;
 import com.geekbrain.notes.navigation.Navigation;
 import com.geekbrain.notes.navigation.Publisher;
@@ -16,13 +15,6 @@ import com.geekbrain.notes.ui.fragments.AboutFragment;
 import com.geekbrain.notes.ui.fragments.NoteFragment;
 import com.geekbrain.notes.ui.fragments.SettingsFragment;
 import com.google.android.material.navigation.NavigationView;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -32,8 +24,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        createStorage();
-        tempInitStorage();
         super.onCreate(savedInstanceState);
         navigation = new Navigation(getSupportFragmentManager());
         setContentView(R.layout.activity_main);
@@ -90,37 +80,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         return toolbar;
-    }
-
-    //временный метод для создания пробных записей во внутренней памяти
-    private void tempInitStorage() {
-        CardData newNote = new CardData("Напоминание", "Созвон", "Необходимо обязательно созвониться с начальником!", new Date());
-        CardData newNote2 = new CardData("Дело", "Сходить в магазин", "Накупить всякого. Молоко, сосиски, хлеб, огурцы, помидоры, кофе, чай, шашлык, творог, печенье, и что-нибудь на выбор", new Date());
-
-        //Хранить заметки будем в ArrayList
-        ArrayList<CardData> noteList = new ArrayList();
-        noteList.add(newNote);
-        noteList.add(newNote2);
-
-        File storage = new File(getFilesDir(), getString(R.string.storage_file_name));
-        //Записываем ArrayList с заметками в файл
-        try (ObjectOutputStream objOut = new ObjectOutputStream(new FileOutputStream(storage))) {
-            objOut.writeObject(noteList);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //создание файла для хранения записей во внутренней памяти устройства
-    private void createStorage() {
-        File storage = new File(getFilesDir(), "storage.csv");
-        if (!storage.exists()) {
-            try {
-                storage.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public Navigation getNavigation() {

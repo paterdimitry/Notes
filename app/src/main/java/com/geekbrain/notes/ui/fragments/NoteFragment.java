@@ -18,9 +18,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.geekbrain.notes.CardData;
-import com.geekbrain.notes.CardSourceImpl;
+import com.geekbrain.notes.CardSourceFirebaseImpl;
 import com.geekbrain.notes.R;
 import com.geekbrain.notes.interfaces.CardSource;
+import com.geekbrain.notes.interfaces.CardSourceResponse;
 import com.geekbrain.notes.interfaces.Observer;
 import com.geekbrain.notes.navigation.Navigation;
 import com.geekbrain.notes.navigation.Publisher;
@@ -38,12 +39,6 @@ public class NoteFragment extends Fragment implements Observer {
         return new NoteFragment();
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        data = new CardSourceImpl(getActivity()).init();
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -51,6 +46,13 @@ public class NoteFragment extends Fragment implements Observer {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note, container, false);
         noteListInit(view);
+        data = new CardSourceFirebaseImpl().init(new CardSourceResponse() {
+            @Override
+            public void initialized(CardSource cardSource) {
+                noteListAdapter.notifyDataSetChanged();
+            }
+        });
+        noteListAdapter.setDataSource(data);
         return view;
     }
 
@@ -109,8 +111,6 @@ public class NoteFragment extends Fragment implements Observer {
     }
 
     private void noteListInit(View view) {
-
-        data = new CardSourceImpl(getActivity()).init();
         RecyclerView recyclerView = view.findViewById(R.id.list_note);
         initRecyclerView(recyclerView, data);
     }
@@ -122,10 +122,10 @@ public class NoteFragment extends Fragment implements Observer {
         linearLayoutManager.setOrientation(RecyclerView.VERTICAL);
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        noteListAdapter = new NoteListAdapter(data, this);
+        noteListAdapter = new NoteListAdapter(this);
         recyclerView.setAdapter(noteListAdapter);
 
-        noteListAdapter.setItemClickListener((view, position) -> showDetails(data.getSource(position)));
+        noteListAdapter.setItemClickListener((view, position) -> NoteFragment.this.showDetails(data.getSource(position)));
     }
 
     private void showChangeNote(CardData note, int position) {
