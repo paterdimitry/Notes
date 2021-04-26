@@ -69,21 +69,9 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView titleTV;
-        TextView descriptionTV;
-        TextView dateTV;
-
-        public TextView getTitleTV() {
-            return titleTV;
-        }
-
-        public TextView getDescriptionTV() {
-            return descriptionTV;
-        }
-
-        public TextView getDateTV() {
-            return dateTV;
-        }
+        final TextView titleTV;
+        final TextView descriptionTV;
+        final TextView dateTV;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

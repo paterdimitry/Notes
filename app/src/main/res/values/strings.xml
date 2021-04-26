@@ -22,5 +22,9 @@
     <string name="description_on_change">Описание</string>
     <string name="text_on_change">Текст заметки</string>
     <string name="confirm">Подтвердить</string>
+    <string name="add_text">Добавить заметку</string>
+    <string name="confirm_delete">Вы уверены?</string>
+    <string name="delete_no">Пока нет</string>
+    <string name="delete_yes">Уверен</string>
 
 </resources>

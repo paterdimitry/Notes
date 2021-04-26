@@ -19,7 +19,7 @@ public class CardSourceFirebaseImpl implements CardSource {
     private FirebaseFirestore store = FirebaseFirestore.getInstance();
     private CollectionReference collection = store.collection(CARDS_COLLECTION);
 
-    private List<CardData> data = new ArrayList<>();
+    private List<CardData> data;
 
     @Override
     public CardSource init(final CardSourceResponse cardSourceResponse) {

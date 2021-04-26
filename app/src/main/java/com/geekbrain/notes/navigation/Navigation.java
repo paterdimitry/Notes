@@ -37,5 +37,9 @@ public class Navigation {
             fragmentTransaction.addToBackStack(null);
         }
         fragmentTransaction.commit();}
+
+    public FragmentManager getFragmentManager() {
+        return fragmentManager;
+    }
 }
 
