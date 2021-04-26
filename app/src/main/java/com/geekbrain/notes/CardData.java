@@ -3,10 +3,9 @@ package com.geekbrain.notes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class CardData implements Parcelable, Serializable {
+public class CardData implements Parcelable {
 
     private String id;
     private String title; //Заголовок заметки

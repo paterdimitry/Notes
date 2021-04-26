@@ -21,8 +21,8 @@ import com.geekbrain.notes.CardData;
 import com.geekbrain.notes.CardSourceFirebaseImpl;
 import com.geekbrain.notes.R;
 import com.geekbrain.notes.interfaces.CardSource;
-import com.geekbrain.notes.interfaces.CardSourceResponse;
 import com.geekbrain.notes.interfaces.Observer;
+import com.geekbrain.notes.interfaces.OnDialogListener;
 import com.geekbrain.notes.navigation.Navigation;
 import com.geekbrain.notes.navigation.Publisher;
 import com.geekbrain.notes.ui.NoteListAdapter;
@@ -46,13 +46,9 @@ public class NoteFragment extends Fragment implements Observer {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note, container, false);
         noteListInit(view);
-        data = new CardSourceFirebaseImpl().init(new CardSourceResponse() {
-            @Override
-            public void initialized(CardSource cardSource) {
-                noteListAdapter.notifyDataSetChanged();
-            }
-        });
+        data = new CardSourceFirebaseImpl().init(cardSource -> noteListAdapter.notifyDataSetChanged());
         noteListAdapter.setDataSource(data);
+        view.findViewById(R.id.fabAdd).setOnClickListener(v -> showChangeNote(null, data.size()));
         return view;
     }
 
@@ -100,9 +96,7 @@ public class NoteFragment extends Fragment implements Observer {
                 return true;
             }
             case R.id.delete_popup: {
-                data.deleteCardData(position);
-                noteListAdapter.notifyItemRemoved(position);
-                Toast.makeText(getContext(), getResources().getText(R.string.deleted).toString(), Toast.LENGTH_LONG).show();
+                showDialog(position);
                 return true;
             }
         }
@@ -156,15 +150,23 @@ public class NoteFragment extends Fragment implements Observer {
     }
 
     //создание активити дял отображения фрагмента с детализацией заметки при вертикальной ориентации экрана
+
     private void showDetailPort(CardData note) {
         navigation.addFragment(DetailFragment.newInstance(note), true, publisher);
     }
-
     //отображение фрагмента с детализацией заметки при экране в горизонтальной ориентации
+
     private void showDetailLand(CardData note) {
         navigation.addSideFragment(DetailFragment.newInstance(note), false, publisher);
     }
 
+    private void showDialog(int position) {
+        DialogFragment dialog = DialogFragment.newInstance(position);
+        dialog.setDialogListener(dialogListener);
+        if (navigation.getFragmentManager() != null) {
+            dialog.show(navigation.getFragmentManager(),"dialog_fragment");
+        }
+    }
 
     @Override
     public void updateCardData(CardData cardData, boolean isChange, int position) {
@@ -174,4 +176,18 @@ public class NoteFragment extends Fragment implements Observer {
             data.add(cardData);
         }
     }
+
+    private OnDialogListener dialogListener = new OnDialogListener() {
+        @Override
+        public void onDialogNo() {
+            Toast.makeText(getContext(), "Удаление отменено", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onDialogYes(int position) {
+            data.deleteCardData(position);
+            noteListAdapter.notifyItemRemoved(position);
+            Toast.makeText(getContext(), getResources().getText(R.string.deleted).toString(), Toast.LENGTH_LONG).show();
+        }
+    };
 }
